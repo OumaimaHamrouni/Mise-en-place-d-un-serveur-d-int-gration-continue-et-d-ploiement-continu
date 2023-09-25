@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appangular
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appangular
+  template:
+    metadata:
+      labels:
+        app: appangular
+    spec:
+      containers:
+      - name: appangular
+        image: angularapp
+        ports:
+        - containerPort: 80
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appangulars
+  labels:
+    app: appangular
+spec:
+  selector:
+    app: appangular
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 32002
+
+
+

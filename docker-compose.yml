@@ -1,0 +1,60 @@
+version: '3.1'
+
+services:
+
+  jenkins:
+    build:
+      context: .
+    networks:
+      - docker
+    ports:
+      - 8080:8080
+      - 50000:50000
+    tty: true
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+
+  dind:
+    image: docker:dind
+    privileged: true
+    restart: always
+    networks:
+      docker:
+        aliases: 
+          - docker
+    ports:
+      - 2376:2376
+    tty: true
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+
+  sonarqube:
+    image: sonarqube
+    container_name: sonarqube
+    networks:
+      - docker
+    ports:
+      - "9000:9000"
+   
+  nexus:
+    image: sonatype/nexus3
+    networks:
+      - docker
+    ports:
+      - "8081:8081"
+      - "8085:8085"
+
+networks:
+  docker:
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs:
